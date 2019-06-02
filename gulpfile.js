@@ -9,6 +9,9 @@ var gulp = require("gulp"),
   babel = require("gulp-babel"),
   del = require("del"),
   zip = require("gulp-zip"),
+  postcss = require("gulp-postcss"),
+  stripInlineComments = require("postcss-strip-inline-comments"),
+  scss = require("postcss-scss"),
   browserSync = require("browser-sync").create();
 
 // File Paths
@@ -39,9 +42,11 @@ var SCRIPTS_PATH = "public/scripts/**/*.js",
 
 // Styles for SCSS -- COMMENT IF YOU WANT TO USE PLAIN CSS
 gulp.task("styles", function() {
+  var processors = [stripInlineComments];
   console.log("starting styles task");
   return gulp
     .src("public/scss/styles.scss")
+    .pipe(postcss(processors, { syntax: scss }))
     .pipe(
       plumber(function(err) {
         console.log("Styles Task Error");
