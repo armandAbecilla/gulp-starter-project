@@ -50,7 +50,7 @@ gulp.task("styles", function() {
     .pipe(
       plumber(function(err) {
         console.log("Styles Task Error");
-        console.log(err);
+        console.log(err.toString());
         this.emit("end");
       })
     )
@@ -62,8 +62,8 @@ gulp.task("styles", function() {
       })
     )
     .pipe(
-      sass({
-        // outputStyle: 'compressed' UNCOMMENT IF YOU NEED TO MINIFY CSS
+      sass.sync({
+        // outputStyle: 'compressed' //UNCOMMENT IF YOU NEED TO MINIFY CSS
       })
     )
     .pipe(sourcemaps.write())
@@ -79,7 +79,7 @@ gulp.task("scripts", function() {
     .pipe(
       plumber(function(err) {
         console.log("Scripts Task Error");
-        console.log(err);
+        console.log(err.toString());
         this.emit("end");
       })
     )
@@ -118,6 +118,16 @@ gulp.task("default", ["styles", "scripts"], function() {
 // first is the Path / directory
 // second is the task you want to run whenever a file changes
 
+gulp.task("css-watch", ["styles"], function(done) {
+  browserSync.reload();
+  done();
+});
+
+gulp.task("js-watch", ["scripts"], function(done) {
+  browserSync.reload();
+  done();
+});
+
 gulp.task("watch", ["default"], function() {
   console.log("Starting watch task");
   // Initialize browsersync
@@ -126,7 +136,10 @@ gulp.task("watch", ["default"], function() {
       baseDir: "./public"
     }
   });
-  // gulp.watch(CSS_PATH, ['styles']); // UNCOMMENT IF YOU WANT TO USE PLAIN CSS
-  gulp.watch("public/scss/**/*.scss", ["styles"]); // COMMENT IF YOU WANT TO USE PLAIN CSS
-  gulp.watch(SCRIPTS_PATH, ["scripts"]);
+  // gulp.watch(CSS_PATH, ['css-watch']).on("change", browserSync.reload); // UNCOMMENT IF YOU WANT TO USE PLAIN CSS
+  gulp
+    .watch("public/scss/**/*.scss", ["css-watch"])
+    .on("change", browserSync.reload); // COMMENT IF YOU WANT TO USE PLAIN CSS
+  gulp.watch(SCRIPTS_PATH, ["js-watch"]).on("change", browserSync.reload);
+  gulp.watch("public/**/*.html").on("change", browserSync.reload);
 });
